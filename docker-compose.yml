@@ -1,0 +1,46 @@
+version: "3.7"
+
+services:
+
+  egeya:
+    image: "egeya/blog:0.1"
+    build:
+      context: .
+      args:
+        PHP_VERSION: "${PHP_VERSION}"
+        AEGEYA_VERSION: "${AEGEYA_VERSION}"
+    container_name: "egeya"
+    environment:
+      - "VIRTUAL_HOST=${VIRTUAL_HOST}"
+    networks:
+      - "db_net"
+    ports:
+      - "80:80"
+    volumes:
+      - "${PATH_VOLUMES}/egeya/theme:/var/www/html/themes/mytheme"
+      - "${PATH_VOLUMES}/egeya/pictures:/var/www/html/pictures"
+      - "${PATH_VOLUMES}/egeya/user:/var/www/html/user"
+      - "${PATH_VOLUMES}/egeya/video:/var/www/html/video"
+      - "${PATH_VOLUMES}/egeya/audio:/var/www/html/audio"
+    depends_on:
+      - "mariadb"
+
+  mariadb:
+    image: "mariadb:${MARIADB_VERSION}"
+    restart: "always"
+    container_name: "mariadb"
+    environment:
+      - "MARIADB_USER=${MARIADB_USER}"
+      - "MARIADB_PASSWORD=${MARIADB_PASSWORD}"
+      - "MARIADB_DATABASE=${MARIADB_DATABASE}"
+      - "MARIADB_RANDOM_ROOT_PASSWORD=yes"
+    networks:
+      - "db_net"
+    ports:
+      - "3306:3306"
+    volumes:
+      - "${PATH_VOLUMES}/mariadb:/var/lib/mysql"
+
+networks:
+  db_net:
+    name: "db_net"
